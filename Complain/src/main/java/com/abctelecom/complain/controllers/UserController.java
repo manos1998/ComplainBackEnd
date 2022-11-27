@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.abctelecom.complain.models.User;
 import com.abctelecom.complain.repository.UserRepository;
 
-
 @CrossOrigin(origins = "http://localhost:8080", maxAge = 3600, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/test/user")
@@ -32,7 +31,7 @@ public class UserController {
 		return new ResponseEntity<>(_user.get(), HttpStatus.OK);
 	}
 
-	//Update User Profile
+	// Update User Profile
 	@PutMapping("/{id}")
 	public ResponseEntity<User> upateUserDetail(@PathVariable("id") long id, @RequestBody User user) {
 		Optional<User> userData = userRepository.findById(id);
