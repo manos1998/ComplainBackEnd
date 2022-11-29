@@ -11,4 +11,8 @@ public interface ComplainRepository extends JpaRepository<Complain, Long> {
 
 	List<Complain> findByTypeContaining(String type);
 
+	List<Complain> findByUserId(Long userId);
+
+//	List<Complain> findByComplainId(Long complainId);
+
 }

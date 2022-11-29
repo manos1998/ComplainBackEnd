@@ -1,133 +1,72 @@
 package com.abctelecom.complain.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.abctelecom.complain.models.Complain;
 import com.abctelecom.complain.repository.ComplainRepository;
+import com.abctelecom.complain.repository.UserRepository;
 
-
-@CrossOrigin(origins = "http://localhost:8081", maxAge = 3600, allowCredentials="true")
+@CrossOrigin(origins = "http://localhost:8081", maxAge = 3600, allowCredentials = "true")
 @RestController
-@RequestMapping("/api/test/user/complain")
+@RequestMapping("/api/test")
 public class ComplainController {
 
 	@Autowired
 	ComplainRepository complainRepository;
-	
+
+	@Autowired
+	UserRepository userRepository;
+
+//	@GetMapping("/user/{userId}/complains")
+//	@PreAuthorize("hasRole('USER')")
+//	public ResponseEntity<User> getUserDetails(@PathVariable("id") long id) {
+//		Optional<User> _user = userRepository.findById(id);
+//		return new ResponseEntity<>(_user.get(), HttpStatus.OK);
+//	}
+
 	@PreAuthorize("hasRole('USER')")
-	@GetMapping("/complains")
-	public ResponseEntity<List<Complain>> getAllComplains(@RequestParam(required = false) String type) {
-		try {
-			List<Complain> complains = new ArrayList<Complain>();
-
-			if (type == null)
-				complainRepository.findAll().forEach(complains::add);
-			else
-				complainRepository.findByTypeContaining(type).forEach(complains::add);
-
-			if (complains.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-
-			return new ResponseEntity<>(complains, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+	@GetMapping("/user/{userId}/complains")
+	public ResponseEntity<List<Complain>> getAllComplainsByUserId(@PathVariable(value = "userId") Long userId) {
+		if (!complainRepository.existsById(userId)) {
+			throw new Error("User not Found By Id" + userId);
 		}
+
+		List<Complain> complains = complainRepository.findByUserId(userId);
+		return new ResponseEntity<>(complains, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/complains/{id}")
-	public ResponseEntity<Complain> getComplainById(@PathVariable("id") long id) {
-		Optional<Complain> complainDate = complainRepository.findById(id);
+	public ResponseEntity<Complain> getComplainByUserId(@PathVariable(value = "id") Long id) {
+		Complain complain = complainRepository.findById(id).orElseThrow();
 
-		if (complainDate.isPresent()) {
-			return new ResponseEntity<>(complainDate.get(), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		return new ResponseEntity<>(complain, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasRole('USER')")
-	@PostMapping("/complains")
-	public ResponseEntity<Complain> createComplain(@RequestBody Complain complain) {
-		try {
-			Complain _complain = complainRepository.save(new Complain(complain.isActive(), complain.getDetails(), complain.getType(), complain.getStatus()));
-			return new ResponseEntity<>(_complain, HttpStatus.CREATED);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	@PostMapping("/user/{userId}/complains")
+	public ResponseEntity<Complain> createComplain(@PathVariable(value = "userId") Long userId,
+			@RequestBody Complain complainRequest) {
+		Complain complain = new Complain(complainRequest.isActive(), complainRequest.getDetails(), complainRequest.getType(), complainRequest.getStatus());
+		userRepository.findById(userId).map(user -> {
+			complain.setUser(user);
+			return complainRepository.save(complain);
+		}).orElseThrow();
+
+		return new ResponseEntity<>(complain, HttpStatus.CREATED);
 	}
 
-	@PreAuthorize("hasRole('USER')")
-	@PutMapping("/complains/{id}")
-	public ResponseEntity<Complain> updateComplain(@PathVariable("id") long id, @RequestBody Complain complain) {
-		Optional<Complain> complainDate = complainRepository.findById(id);
-
-		if (complainDate.isPresent()) {
-			Complain _complain = complainDate.get();
-			_complain.setType(complain.getType());
-			_complain.setDetails(complain.getDetails());
-			_complain.setActive(complain.isActive());
-			_complain.setActive(false);
-			return new ResponseEntity<>(complainRepository.save(_complain), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	@PreAuthorize("hasRole('USER')")
-	@DeleteMapping("/complains/{id}")
-	public ResponseEntity<HttpStatus> deleteComplain(@PathVariable("id") long id) {
-		try {
-			complainRepository.deleteById(id);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@PreAuthorize("hasRole('USER')")
-	@DeleteMapping("/complains")
-	public ResponseEntity<HttpStatus> deleteAllComplains() {
-		try {
-			complainRepository.deleteAll();
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-
-	}
-
-	@PreAuthorize("hasRole('USER')")
-	@GetMapping("/complains/active")
-	public ResponseEntity<List<Complain>> findByPublished() {
-		try {
-			List<Complain> complains = complainRepository.findByActive(true);
-
-			if (complains.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-			return new ResponseEntity<>(complains, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
 
 }
