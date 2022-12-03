@@ -1,6 +1,7 @@
 package com.abctelecom.complain.models;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,25 +9,30 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "COMPLAIN_TBL")
+@Table(name = "complains")
 public class Complain {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Long idC;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "user_id", nullable = false)
-	@JsonIgnore
+	@JsonBackReference
+	@ManyToOne(fetch = FetchType.LAZY)
 	private User user;
 
+	private Long uId ;
+
+	private String pincode;
+	
 	private String type;
 
 	private String details;
@@ -34,11 +40,14 @@ public class Complain {
 	private boolean active;
 
 	private String status;
-
+	
 	private String feedback;
 
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime createdOn;
+	
+	@ManyToMany(mappedBy = "complains", fetch = FetchType.LAZY)
+	private Set<User> workers;
 
 	public Complain(boolean active, String details, String type, String status) {
 		this.createdOn = LocalDateTime.now();
@@ -49,6 +58,30 @@ public class Complain {
 	}
 
 	public Complain() {
+	}
+	
+	public String getPincode() {
+		return pincode;
+	}
+
+	public void setPincode(String pincode) {
+		this.pincode = pincode;
+	}
+
+	public Long getuId() {
+		return uId;
+	}
+
+	public void setuId(Long uId) {
+		this.uId = uId;
+	}
+
+	public String getFeedback() {
+		return feedback;
+	}
+
+	public void setFeedback(String feedback) {
+		this.feedback = feedback;
 	}
 
 	public User getUser() {
@@ -67,8 +100,13 @@ public class Complain {
 		this.createdOn = createdOn;
 	}
 
-	public Long getId() {
-		return id;
+
+	public Long getIdC() {
+		return idC;
+	}
+
+	public void setIdC(Long idC) {
+		this.idC = idC;
 	}
 
 	public String getType() {
@@ -102,20 +140,24 @@ public class Complain {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-
-	public String getFeedback() {
-		return feedback;
+	
+	public void addWorkers(User user) {
+		this.workers.add(user);
 	}
 
-	public void setFeedback(String feedback) {
-		this.feedback = feedback;
+	public Set<User> getWorkers() {
+		return workers;
+	}
+
+	public void setWorkers(Set<User> workers) {
+		this.workers = workers;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((idC == null) ? 0 : idC.hashCode());
 		return result;
 	}
 
@@ -128,11 +170,12 @@ public class Complain {
 		if (getClass() != obj.getClass())
 			return false;
 		Complain other = (Complain) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (idC == null) {
+			if (other.idC != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!idC.equals(other.idC))
 			return false;
 		return true;
 	}
+
 }
