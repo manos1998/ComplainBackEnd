@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity
 @Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
 		@UniqueConstraint(columnNames = "email") })
-@JsonIgnoreProperties(value = { "hibernateLazyInitializer"})
+@JsonIgnoreProperties(value = { "hibernateLazyInitializer" })
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,24 +40,24 @@ public class User {
 	private String pincode;
 	private String address;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private Set<Complain> userComplain = new HashSet<>();
-	
+	@Column(name = "reset_password_token")
+	private String resetPasswordToken;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	@JsonManagedReference
+	private Set<Complain> userComplain = new HashSet<>();
+
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinTable(name = "WORKER_COMPLAIN_TABLE", 
-	joinColumns = {
-			@JoinColumn(name = "user_id", referencedColumnName = "id")
-	}, inverseJoinColumns = {
-			@JoinColumn(name = "complain_idC", referencedColumnName = "idC")
-	})
+	@JoinTable(name = "WORKER_COMPLAIN_TABLE", joinColumns = {
+			@JoinColumn(name = "user_id", referencedColumnName = "id") }, inverseJoinColumns = {
+					@JoinColumn(name = "complain_idC", referencedColumnName = "idC") })
 	@JsonIgnore
 	private Set<Complain> complains;
-	
+
 	public User() {
 	}
 
@@ -67,40 +67,42 @@ public class User {
 		this.password = password;
 	}
 
-	//Add Complain to Self
-    public void addUserComplain(Complain complain){
-    	userComplain.add(complain);
-        complain.setUser(this);
-    }
-	//Add Complain to Self
-    public void removeUserComplain(Complain complain){
-        userComplain.remove(complain);
-        complain.setUser(null);
-    }
-	//Add Complain to Self	
+	// Add Complain to Self
+	public void addUserComplain(Complain complain) {
+		userComplain.add(complain);
+		complain.setUser(this);
+	}
+
+	// Add Complain to Self
+	public void removeUserComplain(Complain complain) {
+		userComplain.remove(complain);
+		complain.setUser(null);
+	}
+
+	// Add Complain to Self
 	public Set<Complain> getUserComplain() {
 		return userComplain;
 	}
-	//Add Complain to Self
+
+	// Add Complain to Self
 	public void setUserComplain(Set<Complain> userComplain) {
 		this.userComplain = userComplain;
 	}
-	
-	//Worker 
+
+	// Worker
 	public Set<Complain> getComplains() {
 		return complains;
 	}
 
-	//Worker
+	// Worker
 	public void setComplains(Set<Complain> complains) {
 		this.complains = complains;
 	}
 
-	//Worker
+	// Worker
 	public void addComplains(Complain complain) {
 		this.complains.add(complain);
 	}
-
 
 	public Long getId() {
 		return id;
@@ -141,11 +143,11 @@ public class User {
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
-	
+
 	public void addRoles(Role role) {
 		this.roles.add(role);
 	}
-	
+
 	public String getFirstname() {
 		return firstname;
 	}
@@ -185,7 +187,15 @@ public class User {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-		
+
+	public String getResetPasswordToken() {
+		return resetPasswordToken;
+	}
+
+	public void setResetPasswordToken(String resetPasswordToken) {
+		this.resetPasswordToken = resetPasswordToken;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -210,7 +220,5 @@ public class User {
 			return false;
 		return true;
 	}
-
-	
 
 }

@@ -17,6 +17,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Boolean existsByEmail(String email);
 
+	Optional<User> findByEmail(String email);
+    
+    public User findByResetPasswordToken(String token);
+	
 	@Query(value ="SELECT * FROM complain.users u RIGHT JOIN complain.user_roles ur ON u.id = ur.user_id WHERE ur.role_id = 3", nativeQuery = true)
 	List<User> findByRolesEngineer();
 
@@ -29,4 +33,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query(value = "SELECT * FROM complain.users u inner JOIN complain.complains c ON c.user_id = u.id", nativeQuery = true)
 //	@Query(value = "SELECT * complain.users u FROM INNER JOIN  complain.complains c  ON c.user_id = u.id", nativeQuery = true)
 	List<User> findComplainsCreater();
+
 }

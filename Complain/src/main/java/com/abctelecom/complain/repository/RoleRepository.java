@@ -9,6 +9,6 @@ import com.abctelecom.complain.models.ERole;
 import com.abctelecom.complain.models.Role;
 
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Long> {
+public interface RoleRepository extends JpaRepository<Role, Integer> {
   Optional<Role> findByName(ERole name);
 }

@@ -26,14 +26,14 @@ public class UserController {
 	private UserRepository userRepository;
 
 	@GetMapping("/user")
-	@PreAuthorize("hasRole('USER')")
+	@PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('FIELDWORKER') or hasRole('ENGINEER') or hasRole('ADMIN')")
 	public String userAccess() {
 		return "User Content.";
 	}
 
 	// Get User By ID or User Profile
 	@GetMapping("/user/{id}")
-	@PreAuthorize("hasRole('USER')")
+	@PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('FIELDWORKER') or hasRole('ENGINEER') or hasRole('ADMIN')")
 	public ResponseEntity<User> getUserDetails(@PathVariable("id") long id) {
 		Optional<User> _user = userRepository.findById(id);
 		return new ResponseEntity<>(_user.get(), HttpStatus.OK);
@@ -41,7 +41,7 @@ public class UserController {
 
 	// Update User Profile
 	@PutMapping("/user/{id}")
-	@PreAuthorize("hasRole('USER')")
+	@PreAuthorize("hasRole('USER') or hasRole('MANAGER') or hasRole('FIELDWORKER') or hasRole('ENGINEER') or hasRole('ADMIN')")
 	public ResponseEntity<User> upateUserDetail(@PathVariable("id") long id, @RequestBody User user) {
 		Optional<User> userData = userRepository.findById(id);
 

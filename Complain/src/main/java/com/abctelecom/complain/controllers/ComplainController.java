@@ -73,7 +73,7 @@ public class ComplainController {
 		_user.addUserComplain(complain);
 		complain.setPincode(_user.getPincode());
 		complain.setuId(userId);
-		userRepository.save(_user);
+//		userRepository.save(_user);
 		return new ResponseEntity<>(complainRepository.save(complain), HttpStatus.CREATED);
 	}
 
