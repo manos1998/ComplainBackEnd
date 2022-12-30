@@ -39,6 +39,7 @@ public class User {
 	private String phone;
 	private String pincode;
 	private String address;
+	private Boolean enable;
 
 	@Column(name = "reset_password_token")
 	private String resetPasswordToken;
@@ -60,12 +61,28 @@ public class User {
 
 	public User() {
 	}
+	
+	public User(@NotBlank @Size(max = 20) String username, @NotBlank @Size(max = 50) @Email String email,
+			@NotBlank @Size(max = 120) String password, String firstname, String lastname, String phone, String pincode,
+			String address, Set<Role> roles, Boolean enable) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.phone = phone;
+		this.pincode = pincode;
+		this.address = address;
+		this.roles = roles;
+		this.enable = enable;
+	}
 
 	public User(String username, String email, String password) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
 	}
+
 
 	// Add Complain to Self
 	public void addUserComplain(Complain complain) {
@@ -110,6 +127,14 @@ public class User {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Boolean getEnable() {
+		return enable;
+	}
+
+	public void setEnable(Boolean enable) {
+		this.enable = enable;
 	}
 
 	public String getUsername() {
@@ -194,6 +219,13 @@ public class User {
 
 	public void setResetPasswordToken(String resetPasswordToken) {
 		this.resetPasswordToken = resetPasswordToken;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", username=" + username + ", email=" + email + ", password=" + password
+				+ ", firstname=" + firstname + ", lastname=" + lastname + ", phone=" + phone + ", pincode=" + pincode
+				+ ", address=" + address + ", enable=" + enable + ", roles=" + roles + "]";
 	}
 
 	@Override
